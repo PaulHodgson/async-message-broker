@@ -1,6 +1,6 @@
 # microservice specific routes
 
-GET /chat           @uk.gov.hmrc.asyncmessagebroker.controllers.ASyncMessageBrokerController.chatview()
+GET /chat           @uk.gov.hmrc.asyncmessagebroker.controllers.ASyncMessageBrokerController.chatview(csaEmail:String, roomName:String, pageId:String)
 
 GET /roommessages   @uk.gov.hmrc.asyncmessagebroker.controllers.ASyncMessageBrokerController.getRoomMessages(clientId:String, roomId:String)
 

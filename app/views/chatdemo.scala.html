@@ -14,79 +14,157 @@
  * limitations under the License.
  *@
 
-@(debug:Boolean, botEmail:String)(implicit request: Request[_])
+@(debug:Boolean, botEmail:String, userId:String, sparkRoomId:String, pageId:String, roomName:String)(implicit request: Request[_])
 
 <html>
 
 <head>
+
+    <style>
+        /* Center the loader */
+        #loader {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        z-index: 1;
+        width: 150px;
+        height: 150px;
+        margin: -75px 0 0 -75px;
+        border: 16px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 16px solid #3498db;
+        width: 120px;
+        height: 120px;
+        -webkit-animation: spin 2s linear infinite;
+        animation: spin 2s linear infinite;
+        }
+
+        @@-webkit-keyframes spin {
+        0% { -webkit-transform: rotate(0deg); }
+        100% { -webkit-transform: rotate(360deg); }
+        }
+
+        @@keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+        }
+
+        /* Add animation to "page content" */
+        .animate-bottom {
+        position: relative;
+        -webkit-animation-name: animatebottom;
+        -webkit-animation-duration: 1s;
+        animation-name: animatebottom;
+        animation-duration: 1s
+        }
+
+        @@-webkit-keyframes animatebottom {
+        from { bottom:-100px; opacity:0 }
+        to { bottom:0px; opacity:1 }
+        }
+
+        @@keyframes animatebottom {
+        from{ bottom:-100px; opacity:0 }
+        to{ bottom:0; opacity:1 }
+        }
+
+        #myDiv {
+        display: none;
+        text-align: center;
+        }
+    </style>
+
     <style>
         body {
-            background: #eee url("https://mockuphone.com/static/images/devices/apple-iphone6plus-gold-portrait.png") no-repeat;
-            color: #222;
-            font: 1em/1.5 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            text-align: center;
+        background-color: #eee;
+        color: #222;
+        font: 1em/1.5 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        text-align: center;
+        }
+
+        img {
+        display: block;
+        height: auto;
+        max-width: 100%;
+        }
+
+        p, span {
+        margin: 0;
+        padding: 0;
+        }
+
+        form {
+        padding: 0 0 1rem;
+        }
+
+        a {
+        color: #0000FF;
+        text-decoration: none;
+        }
+
+        a:hover {
+        text-decoration: underline;
+        }
+
+        input[type="text"] {
+        padding: 10px;
+        border: solid 1px #dcdcdc;
+        transition: box-shadow 0.3s, border 0.3s;
+        }
+
+        input[type="text"]:focus {
+        border: solid 1px #707070;
+        box-shadow: 0 0 5px 1px #969696;
+        }
+
+        #wrapper {
+        margin: 0 auto;
+        padding-bottom: 2rem;
+        background: #EBF4FB;
+        width: 50rem;
+        border: 1px solid #ACD8F0;
+        }
+
+        #loginform p {
+        margin: 0.5rem;
         }
 
         #chatbox {
-            text-align: left;
-            margin: 2.9rem 13.7rem;
-            background: #fff;
-            height: 23rem;
-            width: 15.8rem;
-            border: 0.05rem solid black;
-            overflow: auto;
-            padding: 1rem;
+        text-align: left;
+        margin: 0 auto 2rem;
+        background: #fff;
+        height: 20rem;
+        width: 43rem;
+        border: 0.1rem solid #ACD8F0;
+        overflow: auto;
+        padding: 4rem 2rem;
         }
 
-        #msgform {
-            text-align: left;
-            margin: 0 auto 2rem;
-            background: #fff;
-            height: 3rem;
-            width: 17.8rem;
-            border: 0.05rem solid black;
-            overflow: auto;
-            padding: 0;
-            top: 32.4rem;
-            left: 14.2rem;
-            position: absolute;
-            border-top: 0;
+        #usermsg {
+        width: 39rem;
+        border: 0.1rem solid #ACD8F0;
         }
 
-        #usermsg{
-            width: 13rem;
-            height: 2rem;
-            border-radius: 8px;
-            margin-left: 6px;
-            padding-top: 0;
-            padding-left: 10px;
-            font-size: large;
-            border: 1px solid black;
+        #menu {
+        padding: 1rem 2rem 1rem 2rem;
         }
 
-        #usermsg:focus{
-            outline: none;
+        .welcome {
+        float: left;
         }
 
-        #submitmsg{
-            cursor: pointer;
-            height: 2rem;
-            width: 3.7rem;
-            background: #35b128;
-            border: 1px solid #33842a;
-            border-radius: 10px;
-            box-shadow: 0 0 4px rgba(0,0,0, .75);
-            color: #f3f3f3;
-            font-size: 1.1em;
-            margin-top: 5px;
+        .logout {
+        float: right;
         }
 
-        #submitmsg:hover, #submitmsg:focus{
-            outline: none;
-            background-color: #399630;
-            -webkit-box-shadow: 0 0 1px rgba(0,0,0, .75);
-            -moz-box-shadow: 0 0 1px rgba(0,0,0, .75);
-            box-shadow: 0 0 1px rgba(0,0,0, .75);
+        .container {
+        width: 50rem;
+        clear: both;
+        }
+
+        .container input {
+        width: 100%;
+        clear: both;
         }
 
         .message {
@@ -109,7 +187,7 @@
         clear: both;
         float: left;
         margin-bottom: 20px;
-        padding: 8px 20px;
+        padding: 8px 30px;
         position: relative;
         text-shadow: 0 1px 1px rgba(255, 255, 255, 0.7);
         width: auto;
@@ -171,23 +249,17 @@
 </style>
 
     <title>Chat - Customer Module</title>
-    @*<link type="text/css" rel="stylesheet" href="style.css" />*@
+    <link type="text/css" rel="stylesheet" href="style.css" />
 </head>
-<body>
+
+
 <div id="wrapper">
+
+    <image src="/assets/images/logo.png"></image>
 
     <div  id="waitDiv" style="display: none;" class="animate-bottom"></div>
 
-    <div id="config" class="container">
-        <form id="configform">
-            Client Id: <input type="text" name="clientId" id="clientId"><br>
-            Room Name: <input type="text" name="roomName" id="roomName"><br>
-        </form>
-
-        <button onclick="createroom()">Create Room</button>
-    </div>
-
-    <div id="chatdemo" style="display: none;">
+    <div id="chatdemo">
 
         <div id="menu">
             <p id="clientRoomName" class="welcome"><b></b></p>
@@ -196,18 +268,12 @@
         </div>
 
         <div id="chatbox"></div>
-        <form name="message" id="msgform" action="">
+
+        <form name="message" action="">
             <input name="usermsg" type="text" id="usermsg" size="63" />
             <input name="submitmsg" type="submit"  id="submitmsg" value="Send" />
         </form>
 
-        <div>
-            <span>Invite CSA to join current chat</span>
-            <form>
-                CSA email: <input type="text" name="clientId" id="csaEmailAddress"><br>
-            </form>
-            <button onclick="inviteCSA()">Invite</button>
-        </div>
     </div>
 </div>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js"></script>
@@ -224,48 +290,6 @@ function show(id) {
         e.style.display = 'block';
 }
 
-var userId = "";
-var sparkRoomId = "";
-
-function inviteCSA() {
-    var clientId = $("#clientId").val();
-    var csaEmail = $("#csaEmailAddress").val();
-    if (csaEmail.length == 0) {
-        alert('Please enter an email address.');
-        return;
-    }
-
-show("waitDiv");
-
-    $.getJSON('/async-message-broker/membership?roomId='+sparkRoomId+'&clientId='+clientId+'&email='+csaEmail, function (data) {
-        $("#csaEmailAddress").attr("value", "");
-        hide("waitDiv");
-        alert('CSA has been invited to the chat room ' + $("#roomName").val());
-    });
-}
-
-function createroom() {
-    var clientId = $("#clientId").val();
-    var roomName = $("#roomName").val();
-
-show("waitDiv");
-
-    $.getJSON('/async-message-broker/room?clientId='+clientId+'&roomName='+roomName, function (data) {
-        console.log(data);
-        userId = data.clientId;
-        sparkRoomId = data.roomId;
-
-        $("#roomId").text(sparkRoomId);
-        $("#clientRoomName").text("Room name: " + $("#roomName").val());
-
-hide("waitDiv");
-
-        hide("config");
-        show("chatdemo");
-    });
-    console.log('executed');
-}
-
 function readCSAMessages() {
     $.getJSON('/async-message-broker/sync', function (data) {
     });
@@ -273,7 +297,7 @@ function readCSAMessages() {
 
 function retrievemessages() {
     var showData = $('#chatbox');
-    $.getJSON('/async-message-broker/roommessages?clientId='+userId+'&roomId='+sparkRoomId, function (data) {
+    $.getJSON('/async-message-broker/roommessages?clientId=@userId&roomId=@sparkRoomId', function (data) {
         console.log(data);
 
         showData.empty();
@@ -287,8 +311,10 @@ function retrievemessages() {
 }
 
 // jQuery Document
-$(document).ready(function(){
-
+$(document).ready(function() {
+    $("#clientRoomName").text("Room name: @roomName");
+    setInterval (retrievemessages, 2500);
+    setInterval (readCSAMessages, 4000);
 });
 </script>
 </body>
@@ -300,16 +326,12 @@ $(document).ready(function(){
 	    var showData = $('#chatbox');
         var clientmsg = $("#usermsg").val();
 
-        $.get("/async-message-broker/message?clientId="+userId+"&roomId="+sparkRoomId+"&message="+clientmsg, function(data, status){
+        $.get("/async-message-broker/message?clientId=@userId&roomId=@sparkRoomId&message="+clientmsg, function(data, status){
                 var content = '<div class="message">' + clientmsg + '</div>';
                 showData.append(content);
         });
 
-        setInterval (retrievemessages, 2500);
-        setInterval (readCSAMessages, 4000);
-
 		$("#usermsg").attr("value", "");
-        retrievemessages();
 		return false;
 	});
 
