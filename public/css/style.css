@@ -230,19 +230,20 @@ body {
 }
 
 .message {
-    background-color: lightgray;
-    border: 0;
-    border-radius: 15px;
+    background-color: #f9f9f9;
+    border: solid 1px #eaeaea;
+    border-radius: 12px;
     box-sizing: border-box;
     clear: both;
     float: left;
     margin-bottom: 20px;
-    padding: 8px 20px;
+    padding: 8px 20px 10px;
     position: relative;
     text-shadow: 0 1px 1px rgba(255, 255, 255, 0.7);
     width: auto;
     max-width: 100%;
     word-wrap: break-word;
+    font-weight: 400;
 }
 
 .message:before, .message:after {
@@ -253,35 +254,41 @@ body {
 }
 
 .message:before {
-    border: 0;
-    bottom: -1px;
-    left: -6px;
-    z-index: 0;
+    border: 10px solid transparent;
+    border-radius: 8px;
+    border-bottom-color: #eaeaea;
+    bottom: 3px;
+    left: -12px;
 }
 
 .message:after {
-    border: 8px solid transparent;
-    border-bottom-color: lightgray;
-    bottom: 0px;
-    left: -6px;
+    border: 10px solid transparent;
+    border-bottom-color: #f9f9f9;
+    bottom: 4px;
+    left: -10px;
 }
 
 .user {
+    border-color: #0d582c;
     background-color: #0d8242;
     color: white;
-    font-weight: lighter;
     float: right;
+    padding-bottom: 10px;
+    -webkit-font-smoothing: none;
 }
 
 .user:before {
-    border-radius: 20px / 10px;
+    border-bottom-color: #0d582c;
     left: auto;
-    right: -6px;
+    right: -11px;
+    bottom: 2px;
+    border-bottom-width: 11px;
 }
 
 .user:after {
     border-bottom-color: #0d8242;
     border-radius: 20px / 10px;
     left: auto;
-    right: -6px;
+    right: -9px;
+    bottom: 3px
 }

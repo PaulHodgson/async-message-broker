@@ -101,12 +101,18 @@
                             var classes = item.email === "@botEmail" ? "message user" : "message";
                             var content = '<div class="' + classes + '">' + item.text + '</div>';
                             showData.append(content);
+                            scrollToBottomOfMessageList();
                             messageCount++;
                         });
 
                         updateMessageCount(messageCount);
                     });
 
+                }
+
+                function scrollToBottomOfMessageList() {
+                    var element = document.getElementById("chatbox");
+                    element.scrollTop = element.scrollHeight;
                 }
 
                 function updateMessageCount(numberOfMessages) {
@@ -138,6 +144,7 @@
                     $.get("/async-message-broker/message?clientId=@userId&roomId=@sparkRoomId&message=" + clientmsg, function (data, status) {
                         var content = '<div class="message user">' + clientmsg + '</div>';
                         showData.append(content);
+                        scrollToBottomOfMessageList();
                     });
 
                     $("#usermsg").attr("value", "");
