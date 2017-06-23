@@ -38,14 +38,25 @@ class ProfileMongoRepositorySpec extends UnitSpec with ScalaFutures with WithTes
 
     "allow only 1 client be associated to 1 roomId" in {
 
-      await(profileRepository.insert("1", "2", "3"))
-      await(profileRepository.insert("1", "2", "3"))
+      await(profileRepository.insert("1", "2", "3", "4"))
+      await(profileRepository.insert("1", "2", "3", "4"))
       val allRecords = await(profileRepository.findAll())
       allRecords.size shouldBe 1
       val record: ProfilePersist = allRecords(0)
       record.clientId shouldBe "1"
       record.roomId shouldBe "2"
-      record.email shouldBe "3"
+      record.roomName shouldBe "3"
+      record.email shouldBe "4"
+    }
+
+    "find a record by room name" in {
+      await(profileRepository.insert("1", "2", "3", "4"))
+      await(profileRepository.insert("a", "b", "c", "d"))
+      val record = await(profileRepository.findProfileByRoomName("3")).get
+      record.clientId shouldBe "1"
+      record.roomId shouldBe "2"
+      record.roomName shouldBe "3"
+      record.email shouldBe "4"
     }
   }
 }
