@@ -49,6 +49,61 @@ body {
     color: #0d8242;
 }
 
+.section{
+    border-bottom: solid lightgray 1px;
+}
+
+.section:after{
+    content: "";
+    background-color: #e9e9ed;
+    border-top: solid lightgray 1px;
+    height: 5px;
+    padding: 0;
+    margin: 0;
+    display: block;
+}
+
+.section > h1{
+    font-size: 1.9rem;
+    text-align: center;
+    margin: 10px 0 0;
+}
+
+.section > h2{
+    font-size: small;
+    text-align: center;
+}
+
+.section > p{
+    color: grey;
+    font-size: small;
+    margin: 1rem;
+}
+
+.tax_header {
+    background-color: black;
+    color: white;
+    text-align: center;
+    margin: 0;
+    width: 17.8rem;
+    height: 2rem;
+    padding: 6px 0 0;
+}
+
+.wide_button{
+    cursor: pointer;
+    height: 2rem;
+    width: 15rem;
+    background: #0d8242;
+    border: 1px solid #33842a;
+    border-radius: 4px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, .75);
+    color: #f3f3f3;
+    font-size: 15px;
+    margin-top: 5px;
+    margin-left: 1rem;
+}
+
 #messages {
     background: transparent url("/assets/images/messages_grey.png") no-repeat 7px 5px;
 }
@@ -79,11 +134,11 @@ body {
     text-align: left;
     margin: 2.9rem 13.7rem;
     background: #fff;
-    height: 26rem;
-    width: 15.8rem;
+    height: 28rem;
+    width: 17.8rem;
     border: 0.05rem solid black;
     overflow: auto;
-    padding: 1rem;
+    padding: 0;
 }
 
 #chatdemo {
