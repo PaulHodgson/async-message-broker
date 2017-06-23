@@ -35,8 +35,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 @Singleton
 class ASyncMessageBrokerController @Inject()(@Named("botBearerToken") botBearerToken: String, @Named("botEmailIdentity") botEmail: String, snsSentMessageRepository: SparkMessageRepository, profileMongoRpository:ProfileMongoRepository) extends BaseController {
 
-  def chatview() = Action.async { implicit request =>
-    Future.successful(Ok(views.html.chatdemo(debug = true, botEmail)))
+  def chatview(csaEmail:String, roomName:String, pageId:String) = Action.async { implicit request =>
+    val clientId = UUID.randomUUID().toString
+    val roomId = com.ciscospark.SparkClient.createRoom(botBearerToken, roomName)
+    profileMongoRpository.insert(clientId, roomId, botEmail).map { res =>
+      val membership = com.ciscospark.SparkClient.createMembership(botBearerToken, roomId, csaEmail)
+      Ok(views.html.chatdemo(debug = true, botEmail, clientId, roomId, pageId, roomName))
+    }
   }
 
   def createRoom(clientId:String, roomName:String) = Action.async {
