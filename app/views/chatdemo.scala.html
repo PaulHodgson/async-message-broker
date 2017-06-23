@@ -98,7 +98,7 @@
                         showData.empty();
 
                         var items = data.map(function (item) {
-                            var classes = item.email === "@botEmail" ? "message" : "message csa";
+                            var classes = item.email === "@botEmail" ? "message user" : "message";
                             var content = '<div class="' + classes + '">' + item.text + '</div>';
                             showData.append(content);
                             messageCount++;
@@ -136,7 +136,7 @@
                     var clientmsg = $("#usermsg").val();
 
                     $.get("/async-message-broker/message?clientId=@userId&roomId=@sparkRoomId&message=" + clientmsg, function (data, status) {
-                        var content = '<div class="message">' + clientmsg + '</div>';
+                        var content = '<div class="message user">' + clientmsg + '</div>';
                         showData.append(content);
                     });
 
