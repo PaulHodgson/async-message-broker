@@ -48,7 +48,7 @@ object SparkMessagePersist {
 class SparkMessageMongoRepository @Inject()(mongo: DB)
   extends ReactiveRepository[SparkMessagePersist, BSONObjectID]("messages", () => mongo, SparkMessagePersist.mongoFormats, ReactiveMongoFormats.objectIdFormats)
   with AtomicUpdate[SparkMessagePersist]
-    with SparkMessageRepository
+  with SparkMessageRepository
   with BSONBuilderHelpers {
 
   override def ensureIndexes(implicit ec: ExecutionContext): Future[scala.Seq[Boolean]] = {
@@ -88,8 +88,8 @@ class SparkMessageMongoRepository @Inject()(mongo: DB)
     tokenAndDate ++ messageId ++ emailInsert
   }
 
-  def insert(clientId:String, localId:String, roomId:String, snsAction: SparkMessage): Future[DatabaseUpdate[SparkMessagePersist]] = {
-    atomicUpsert(findMessageById(localId, snsAction), modifierForInsert(snsAction, clientId, localId, roomId))
+  def insert(clientId:String, localId:String, roomId:String, message: SparkMessage): Future[DatabaseUpdate[SparkMessagePersist]] = {
+    atomicUpsert(findMessageById(localId, message), modifierForInsert(message, clientId, localId, roomId))
   }
 
   def findMessages(clientId:String, roomId:String): Future[List[SparkMessagePersist]] = {
@@ -105,7 +105,7 @@ class SparkMessageMongoRepository @Inject()(mongo: DB)
 @ImplementedBy(classOf[SparkMessageMongoRepository])
 trait SparkMessageRepository extends Repository[SparkMessagePersist, BSONObjectID] {
 
-  def insert(clientId:String, localId:String, roomId:String, snsAction: SparkMessage): Future[DatabaseUpdate[SparkMessagePersist]]
+  def insert(clientId:String, localId:String, roomId:String, message: SparkMessage): Future[DatabaseUpdate[SparkMessagePersist]]
 
   def findMessages(clientId:String, roomId:String) : Future[List[SparkMessagePersist]]
 }

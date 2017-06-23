@@ -36,18 +36,27 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class ASyncMessageBrokerController @Inject()(@Named("botBearerToken") botBearerToken: String, @Named("botEmailIdentity") botEmail: String, snsSentMessageRepository: SparkMessageRepository, profileMongoRpository:ProfileMongoRepository) extends BaseController {
 
   def chatview(csaEmail:String, roomName:String, pageId:String) = Action.async { implicit request =>
-    val clientId = UUID.randomUUID().toString
-    val roomId = com.ciscospark.SparkClient.createRoom(botBearerToken, roomName)
-    profileMongoRpository.insert(clientId, roomId, botEmail).map { res =>
-      val membership = com.ciscospark.SparkClient.createMembership(botBearerToken, roomId, csaEmail)
-      Ok(views.html.chatdemo(debug = true, botEmail, clientId, roomId, pageId, roomName))
+
+    def chat(roomId: String, clientId: String, email:String, roomName:String): Result = Ok(views.html.chatdemo(debug = true, email, clientId, roomId, pageId, roomName))
+
+    profileMongoRpository.findProfileByRoomName(roomName).flatMap {
+      case Some(found) =>
+        Future.successful(chat(found.roomId, found.clientId, found.email, found.roomName))
+
+      case _ =>
+        val clientId = UUID.randomUUID().toString
+        val roomId = com.ciscospark.SparkClient.createRoom(botBearerToken, roomName)
+        profileMongoRpository.insert(clientId, roomId, roomName, botEmail).map { res =>
+          val membership = com.ciscospark.SparkClient.createMembership(botBearerToken, roomId, csaEmail)
+          chat(roomId, clientId, botEmail, roomName)
+        }
     }
   }
 
   def createRoom(clientId:String, roomName:String) = Action.async {
     val roomId=com.ciscospark.SparkClient.createRoom(botBearerToken, roomName)
 
-    profileMongoRpository.insert(clientId, roomId, botEmail).map { res =>
+    profileMongoRpository.insert(clientId, roomId, roomName, botEmail).map { res =>
       Ok(Json.toJson(RoomResponse(res.updateType.savedValue.clientId, res.updateType.savedValue.roomId)))
     }
   }
@@ -74,6 +83,9 @@ class ASyncMessageBrokerController @Inject()(@Named("botBearerToken") botBearerT
   def sync() = Action.async {
     profileMongoRpository.findProfiles().map { profiles =>
       val outcome: List[RoomResponse] = profiles.map { profile =>
+
+println(" PROFILE ROOM ID IS " + profile.roomId)
+
         val messages: scala.Seq[Message] = JavaConverters.asScalaBufferConverter(com.ciscospark.SparkClient.getMessageRooms(botBearerToken, profile.roomId)).asScala.toSeq
         val filteredCSAMessages = messages.filterNot(p => p.getPersonEmail.equals(profile.email))
 
