@@ -61,7 +61,7 @@
         </div>
 
         <div id="navigation">
-            <a id="pta" href="#">Tax account</a>
+            <a id="pta" href="#" class="active">Tax account</a>
             <a id="messages" href="#">Async chat</a>
             <span id="messages_badge"></span>
         </div>
@@ -148,6 +148,8 @@
                     hide('ptademo');
                     show('chatdemo');
                     hide('messages_badge');
+                    $('#messages').addClass("active");
+                    $('#pta').removeClass("active");
                     messageScreenDisplayed = true;
                 });
 
@@ -155,6 +157,8 @@
                     messageScreenDisplayed = false;
                     hide('chatdemo');
                     show('ptademo');
+                    $('#pta').addClass("active");
+                    $('#messages').removeClass("active");
                 });
 
                 $(document).ready(function () {

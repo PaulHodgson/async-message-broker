@@ -15,7 +15,7 @@ body {
 #navigation {
     text-align: left;
     margin: 0 auto 2rem;
-    background: #DEE0E2;
+    background: #f9f9f9;
     height: 3.4rem;
     width: 17.8rem;
     border: 0.05rem solid black;
@@ -24,13 +24,14 @@ body {
     top: 35.4rem;
     left: 14.2rem;
     position: absolute;
-    border-top: 0;
+    border-top: solid 1px #eaeaea;
     display: table-cell;
 }
 
 #navigation > a {
+    opacity: 0.8;
     height: 55px;
-    width: 55px;
+    width: 70px;
     margin: 5px;
     font-size: xx-small;
     text-align: center;
@@ -40,20 +41,33 @@ body {
     text-decoration: none;
 }
 
+#navigation > a:hover {
+    opacity: 1;
+}
+
 #pta {
-    background: transparent url("/assets/images/taxaccount_grey.png") no-repeat 7px 5px;
+    background: transparent url("/assets/images/taxaccount_grey.png") no-repeat 21px 10px;
 }
 
-#pta:focus, #pta:hover, #pta.active {
-    background: transparent url("/assets/images/taxaccount_green.png") no-repeat 7px 5px;
+#pta:focus, #pta.active {
+    background: transparent url("/assets/images/taxaccount_green.png") no-repeat 21px 10px;
     color: #0d8242;
+    opacity: 1;
 }
 
-.section{
+.section {
     border-bottom: solid lightgray 1px;
 }
 
-.section:after{
+.section:last-child {
+    border-bottom: 0;
+}
+
+.section:last-child:after {
+    height: 0;
+}
+
+.section:after {
     content: "";
     background-color: #e9e9ed;
     border-top: solid lightgray 1px;
@@ -63,18 +77,22 @@ body {
     display: block;
 }
 
-.section > h1{
+.section > h1 {
     font-size: 1.9rem;
     text-align: center;
     margin: 10px 0 0;
 }
 
-.section > h2{
+.section > h1 + p {
+    margin-top: 0;
+}
+
+.section > h2 {
     font-size: small;
     text-align: center;
 }
 
-.section > p{
+.section > p {
     color: grey;
     font-size: small;
     margin: 1rem;
@@ -90,7 +108,7 @@ body {
     padding: 6px 0 0;
 }
 
-.wide_button{
+.wide_button {
     cursor: pointer;
     height: 2rem;
     width: 15rem;
@@ -105,12 +123,13 @@ body {
 }
 
 #messages {
-    background: transparent url("/assets/images/messages_grey.png") no-repeat 7px 5px;
+    background: transparent url("/assets/images/messages_grey.png") no-repeat 21px 11px;
 }
 
-#messages:focus, #messages:hover, #messages.active {
-    background: transparent url("/assets/images/messages_green.png") no-repeat 7px 5px;
+#messages:focus, #messages.active {
+    background: transparent url("/assets/images/messages_green.png") no-repeat 21px 11px;
     color: #0d8242;
+    opacity: 1;
 }
 
 #messages_badge {
@@ -121,8 +140,8 @@ body {
     padding: 1px 3px 1px 2px;
     font-size: 10px;
     position: absolute;
-    top: 4px;
-    left: 87px;
+    top: 7px;
+    left: 110px;
     height: 15px;
     width: 11px;
     display: none;
@@ -138,6 +157,7 @@ body {
     width: 17.8rem;
     border: 0.05rem solid black;
     overflow: auto;
+    overflow-x: hidden;
     padding: 0;
 }
 
@@ -181,7 +201,7 @@ body {
     padding-top: 0;
     padding-left: 10px;
     font-size: large;
-    border: 1px solid black;
+    border: 1px solid lightgray;
 }
 
 #usermsg:focus {
@@ -192,7 +212,7 @@ body {
     cursor: pointer;
     height: 2rem;
     width: 3.7rem;
-    background: #35b128;
+    background: #0d8242;
     border: 1px solid #33842a;
     border-radius: 10px;
     box-shadow: 0 0 4px rgba(0, 0, 0, .75);
@@ -203,7 +223,7 @@ body {
 
 #submitmsg:hover, #submitmsg:focus {
     outline: none;
-    background-color: #399630;
+    background-color: #35b128;
     -webkit-box-shadow: 0 0 1px rgba(0, 0, 0, .75);
     -moz-box-shadow: 0 0 1px rgba(0, 0, 0, .75);
     box-shadow: 0 0 1px rgba(0, 0, 0, .75);
