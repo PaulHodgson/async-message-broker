@@ -70,9 +70,7 @@
         <script type="text/javascript">
 
                 var messageScreenDisplayed = false;
-                var lastSeenMessageCount = -1;
                 var currentMessageCount = -1;
-                var badgeValue = 0;
 
                 function hide(id) {
                     var e = document.getElementById(id);
@@ -85,19 +83,18 @@
                 }
 
 
-                var timestamp=-1;
+                var timestamp = -1;
                 var lastId = "";
                 function retrievemessages() {
 
                     var showData = $('#chatbox');
 
                     var queryString = 'clientId=@userId&roomId=@sparkRoomId';
-                    if (timestamp != -1 && lastId != "") {
-                        queryString = queryString+'&timestamp='+timestamp+'&lastId='+lastId;
+                    if (timestamp !== -1 && lastId !== "") {
+                        queryString = queryString + '&timestamp=' + timestamp + '&lastId=' + lastId;
                     }
 
-                    $.getJSON('/async-message-broker/roommessages?'+queryString, function (data) {
-                        var messageCount = 0;
+                    $.getJSON('/async-message-broker/roommessages?' + queryString, function (data) {
                         console.log(data);
 
                         var items = data.map(function (item) {
@@ -105,15 +102,12 @@
                             var content = '<div class="' + classes + '">' + item.text + '</div>';
                             showData.append(content);
                             scrollToBottomOfMessageList();
-                            messageCount++;
-
-                            if (messageCount === data.length) {
-                                lastId = item.id;
-                                timestamp = item.timestamp;
-                            }
+                            return item;
                         });
 
-                        updateMessageCount(messageCount);
+                        lastId = items[length].id;
+                        timestamp = items[length].timestamp;
+                        updateMessageCount(items.length);
                     });
                 }
 
@@ -123,22 +117,13 @@
                 }
 
                 function updateMessageCount(numberOfMessages) {
-                    if (lastSeenMessageCount === -1 && currentMessageCount === -1) {
-                        lastSeenMessageCount = numberOfMessages;
-                        currentMessageCount = numberOfMessages;
-                        return;
-                    }
-
-                    if (lastSeenMessageCount < numberOfMessages) {
-                        currentMessageCount = numberOfMessages;
-                        if (messageScreenDisplayed) {
-                            lastSeenMessageCount = numberOfMessages;
-                        } else {
-                            badgeValue = currentMessageCount - lastSeenMessageCount;
-                            if (badgeValue > 0) {
-                                $("#messages_badge").text(badgeValue);
-                                show('messages_badge');
-                            }
+                    currentMessageCount += numberOfMessages;
+                    if (messageScreenDisplayed) {
+                        currentMessageCount = 0;
+                    } else {
+                        if (currentMessageCount > 0) {
+                            $("#messages_badge").text(currentMessageCount);
+                            show('messages_badge');
                         }
                     }
                 }
@@ -149,7 +134,8 @@
                     var clientmsg = $("#usermsg").val();
 
 
-                    $.get("/async-message-broker/message?clientId=@userId&roomId=@sparkRoomId&message=" + clientmsg, function (data, status) {});
+                    $.get("/async-message-broker/message?clientId=@userId&roomId=@sparkRoomId&message=" + clientmsg, function (data, status) {
+                    });
 
                     $("#usermsg").attr("value", "");
                     return false;
@@ -162,6 +148,7 @@
                     $('#messages').addClass("active");
                     $('#pta').removeClass("active");
                     messageScreenDisplayed = true;
+                    scrollToBottomOfMessageList();
                 });
 
                 $("#pta").click(function () {
