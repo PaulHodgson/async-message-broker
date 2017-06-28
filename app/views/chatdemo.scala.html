@@ -84,18 +84,21 @@
                     e.style.display = 'block';
                 }
 
-                function readCSAMessages() {
-                    $.getJSON('/async-message-broker/sync', function (data) {
-                    });
-                }
 
+                var timestamp=-1;
+                var lastId = "";
                 function retrievemessages() {
+
                     var showData = $('#chatbox');
-                    $.getJSON('/async-message-broker/roommessages?clientId=@userId&roomId=@sparkRoomId', function (data) {
+
+                    var queryString = 'clientId=@userId&roomId=@sparkRoomId';
+                    if (timestamp != -1 && lastId != "") {
+                        queryString = queryString+'&timestamp='+timestamp+'&lastId='+lastId;
+                    }
+
+                    $.getJSON('/async-message-broker/roommessages?'+queryString, function (data) {
                         var messageCount = 0;
                         console.log(data);
-
-                        showData.empty();
 
                         var items = data.map(function (item) {
                             var classes = item.email === "@botEmail" ? "message user" : "message";
@@ -103,11 +106,15 @@
                             showData.append(content);
                             scrollToBottomOfMessageList();
                             messageCount++;
+
+                            if (messageCount === data.length) {
+                                lastId = item.id;
+                                timestamp = item.timestamp;
+                            }
                         });
 
                         updateMessageCount(messageCount);
                     });
-
                 }
 
                 function scrollToBottomOfMessageList() {
@@ -141,11 +148,8 @@
                     var showData = $('#chatbox');
                     var clientmsg = $("#usermsg").val();
 
-                    $.get("/async-message-broker/message?clientId=@userId&roomId=@sparkRoomId&message=" + clientmsg, function (data, status) {
-                        var content = '<div class="message user">' + clientmsg + '</div>';
-                        showData.append(content);
-                        scrollToBottomOfMessageList();
-                    });
+
+                    $.get("/async-message-broker/message?clientId=@userId&roomId=@sparkRoomId&message=" + clientmsg, function (data, status) {});
 
                     $("#usermsg").attr("value", "");
                     return false;
@@ -171,7 +175,6 @@
                 $(document).ready(function () {
                     $("#clientRoomName").text("Room name: @roomName");
                     setInterval(retrievemessages, 2500);
-                    setInterval(readCSAMessages, 4000);
                 });
         </script>
     </body>

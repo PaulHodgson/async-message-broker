@@ -1,13 +1,11 @@
 # microservice specific routes
 
-GET /chat           @uk.gov.hmrc.asyncmessagebroker.controllers.ASyncMessageBrokerController.chatview(csaEmail:String, roomName:String, pageId:String)
+GET     /chat           @uk.gov.hmrc.asyncmessagebroker.controllers.ASyncMessageBrokerController.chatview(csaEmail:String, roomName:String, pageId:String)
 
-GET /roommessages   @uk.gov.hmrc.asyncmessagebroker.controllers.ASyncMessageBrokerController.getRoomMessages(clientId:String, roomId:String)
+GET     /roommessages   @uk.gov.hmrc.asyncmessagebroker.controllers.ASyncMessageBrokerController.getRoomMessages(clientId:String, roomId:String, timestamp:Option[Long], lastId:Option[String])
 
-GET /room           @uk.gov.hmrc.asyncmessagebroker.controllers.ASyncMessageBrokerController.createRoom(clientId:String, roomName:String)
+GET     /message        @uk.gov.hmrc.asyncmessagebroker.controllers.ASyncMessageBrokerController.sendMessage(clientId:String, roomId:String, message:String)
 
-GET /message        @uk.gov.hmrc.asyncmessagebroker.controllers.ASyncMessageBrokerController.sendMessage(clientId:String, roomId:String, message:String)
+GET     /membership     @uk.gov.hmrc.asyncmessagebroker.controllers.ASyncMessageBrokerController.membership(roomId:String, email:String)
 
-GET /sync           @uk.gov.hmrc.asyncmessagebroker.controllers.ASyncMessageBrokerController.sync()
-
-GET /membership     @uk.gov.hmrc.asyncmessagebroker.controllers.ASyncMessageBrokerController.membership(roomId:String, email:String)
+POST    /webhook        @uk.gov.hmrc.asyncmessagebroker.controllers.ASyncMessageBrokerController.webhook()

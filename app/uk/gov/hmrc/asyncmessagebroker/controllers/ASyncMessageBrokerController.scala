@@ -16,94 +16,53 @@
 
 package uk.gov.hmrc.asyncmessagebroker.controllers
 
-import java.util.UUID
 import javax.inject.{Inject, Singleton}
-import com.google.inject.name.Named
+import play.api.Logger
 import play.api.libs.json._
 import play.api.mvc._
-import uk.gov.hmrc.asyncmessagebroker.domain.{SparkMessage, Response, RoomResponse}
-import uk.gov.hmrc.asyncmessagebroker.repository.{SparkMessagePersist, ProfileMongoRepository, SparkMessageRepository}
-import uk.gov.hmrc.mongo.DatabaseUpdate
+import uk.gov.hmrc.asyncmessagebroker.domain.Webhook
+import uk.gov.hmrc.asyncmessagebroker.service.MessageService
 import uk.gov.hmrc.play.microservice.controller.BaseController
-import scala.collection.JavaConverters
 import scala.concurrent.Future
 import scala.language.postfixOps
-import com.ciscospark.Message
 import scala.concurrent.ExecutionContext.Implicits.global
 
-
 @Singleton
-class ASyncMessageBrokerController @Inject()(@Named("botBearerToken") botBearerToken: String, @Named("botEmailIdentity") botEmail: String, messageRepository: SparkMessageRepository, profileMongoRpository:ProfileMongoRepository) extends BaseController {
+class ASyncMessageBrokerController @Inject()(messageService:MessageService) extends BaseController {
 
   def chatview(csaEmail:String, roomName:String, pageId:String) = Action.async { implicit request =>
 
-    def chat(roomId: String, clientId: String, email:String, roomName:String): Result = Ok(views.html.chatdemo(debug = true, email, clientId, roomId, pageId, roomName))
+    def chat(roomId: String, clientId: String, email:String, roomName:String): Result =
+      Ok(views.html.chatdemo(debug = true, email, clientId, roomId, pageId, roomName))
 
-    profileMongoRpository.findProfileByRoomName(roomName).flatMap {
-      case Some(found) =>
-        Future.successful(chat(found.roomId, found.clientId, found.email, found.roomName))
-
-      case _ =>
-        val clientId = UUID.randomUUID().toString
-        val roomId = com.ciscospark.SparkClient.createRoom(botBearerToken, roomName)
-        profileMongoRpository.insert(clientId, roomId, roomName, botEmail).map { res =>
-          val membership = com.ciscospark.SparkClient.createMembership(botBearerToken, roomId, csaEmail)
-          chat(roomId, clientId, botEmail, roomName)
-        }
-    }
+    messageService.createRoom(csaEmail, roomName).map(res => chat(res.roomId, res.clientId, res.botEmail, res.roomName))
   }
 
-  def createRoom(clientId:String, roomName:String) = Action.async {
-    val roomId=com.ciscospark.SparkClient.createRoom(botBearerToken, roomName)
-
-    profileMongoRpository.insert(clientId, roomId, roomName, botEmail).map { res =>
-      Ok(Json.toJson(RoomResponse(res.updateType.savedValue.clientId, res.updateType.savedValue.roomId)))
-    }
-  }
-
-  def getRoomMessages(clientId:String, roomId:String) = Action.async { implicit request =>
-    messageRepository.findMessages(clientId, roomId).map{ messages =>
-      val resp: List[Response] = messages.map{item => Response(item.action.text,item.action.email.getOrElse("undefined"))}
-      Ok(Json.toJson(resp))
-    }
+  def getRoomMessages(clientId:String, roomId:String, timestamp:Option[Long], lastId:Option[String]) = Action.async { implicit request =>
+    messageService.getLocalRoomMessages(clientId, roomId, timestamp, lastId).map(res => Ok(Json.toJson(res)))
   }
 
   def sendMessage(clientId:String, roomId:String, message:String) = Action.async {
-    val localId = UUID.randomUUID().toString
-    val resp: Future[DatabaseUpdate[SparkMessagePersist]] = messageRepository.insert(clientId, localId, roomId, SparkMessage(message, None, None))
-
-    resp.flatMap { res =>
-      val mess = com.ciscospark.SparkClient.sendMessage(botBearerToken, message, roomId)
-      messageRepository.insert(clientId, localId, roomId, SparkMessage(message, Some(mess.getId), Some(mess.getPersonEmail)))
-        .map{resA => Ok("{}")
-      }
-    }
-  }
-
-  def sync() = Action.async {
-    profileMongoRpository.findProfiles().map { profiles =>
-      val outcome: List[RoomResponse] = profiles.map { profile =>
-
-        val messages: scala.Seq[Message] = JavaConverters.asScalaBufferConverter(com.ciscospark.SparkClient.getMessageRooms(botBearerToken, profile.roomId)).asScala.toSeq
-        val filteredCSAMessages = messages.filterNot(p => p.getPersonEmail.equals(profile.email))
-
-        // Do not wait for async task to complete.
-        filteredCSAMessages.map { message =>
-          messageRepository.insert(profile.clientId, UUID.randomUUID().toString, profile.roomId, SparkMessage(message.getText, Some(message.getId), Some(message.getPersonEmail))).map(res => res.updateType.savedValue)
-        }
-        RoomResponse(profile.clientId, profile.roomId)
-      }
-
-      Ok(Json.toJson(outcome))
-    }
-
+    messageService.sendMessage(clientId, roomId, message).map(_ => Ok("{}"))
   }
 
   def membership(roomId:String, email:String) = Action.async {
-    val membership = com.ciscospark.SparkClient.createMembership(botBearerToken, roomId, email)
+    val membership = messageService.createMembership(roomId, email)
     Future.successful(Ok(s"""{"id":"${membership.getId}""""))
   }
 
+  def webhook = Action.async(BodyParsers.parse.json) { request =>
+    request.body.validate[Webhook].fold(
+      errors => {
+        Logger.warn("Service failed for webhook: " + errors + " body" + request.body)
+        Future.successful(BadRequest)
+      },
+      current => {
+        messageService.insertHook(current).map(res => {
+          Ok("")
+        })
+      }
+    )
+  }
+
 }
-
-

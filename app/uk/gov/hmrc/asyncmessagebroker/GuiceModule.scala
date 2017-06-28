@@ -26,19 +26,28 @@ import play.api.{Logger, Configuration, Environment}
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.DB
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.asyncmessagebroker.config.BrokerConfig
+import uk.gov.hmrc.asyncmessagebroker.config.{ScheduledConfig, BrokerConfig}
 
 import scala.concurrent.duration.FiniteDuration
 
-class GuiceModule(environment: Environment, configuration: Configuration) extends AbstractModule with ServicesConfig with BrokerConfig {
+class GuiceModule(environment: Environment, configuration: Configuration) extends AbstractModule with ServicesConfig with BrokerConfig with ScheduledConfig {
 
   override protected lazy val mode: Mode = environment.mode
   override protected lazy val runModeConfiguration: Configuration = configuration
 
   override def configure(): Unit = {
+
     bind(classOf[DB]).toProvider(classOf[MongoDbProvider])
     bind(classOf[String]).annotatedWith(named("botBearerToken")).toInstance(fromConfig(configuration, "bot", "bearerToken" ))
     bind(classOf[String]).annotatedWith(named("botEmailIdentity")).toInstance(fromConfig(configuration, "bot", "email" ))
+    bind(classOf[Int]).annotatedWith(named("maxRetryAttempts")).toInstance(configuration.getInt("maxRetryAttempts").getOrElse(3))
+    bind(classOf[Boolean]).annotatedWith(named("messageUpdateMode")).toInstance(configuration.getBoolean("messageUpdateMode").getOrElse(false))
+
+    bind(classOf[Int]).annotatedWith(named("callbackDispatcherCount")).toInstance(maximumSenders(configuration, "callbackDispatcher"))
+    bind(classOf[FiniteDuration]).annotatedWith(named("callbackInitialDelaySeconds")).toInstance(durationFromConfig(configuration, "callbackJobApi", "initialDelay" ))
+    bind(classOf[FiniteDuration]).annotatedWith(named("callbackIntervalSeconds")).toInstance(durationFromConfig(configuration, "callbackJobApi", "interval" ))
+
+
   }
 }
 

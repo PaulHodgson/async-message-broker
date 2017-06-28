@@ -83,17 +83,25 @@ class ProfileMongoRepository @Inject()(mongo: DB)
     atomicUpsert(findByClientIdAndRoomId(clientId, roomId), modifierForInsert(clientId, roomId, roomName, email))
   }
 
-  def findProfiles(): Future[List[ProfilePersist]] = {
+  def findProfiles(): Future[Seq[ProfilePersist]] = {
     val messageTypeQuery = Json.obj("timestamp" -> Json.obj("$gt" -> 1))
 
     collection.find(messageTypeQuery)
       .sort(Json.obj("timestamp" -> 1))
       .cursor[ProfilePersist](ReadPreference.primaryPreferred)
-      .collect[List]()
+      .collect[Seq]()
   }
 
   def findProfileByRoomName(roomName:String): Future[Option[ProfilePersist]] = {
-    val messageTypeQuery = Json.obj("timestamp" -> Json.obj("$gt" -> 1)) ++ Json.obj("roomName" -> roomName)
+    val messageTypeQuery = Json.obj("roomName" -> roomName)
+
+    collection.find(messageTypeQuery)
+      .sort(Json.obj("timestamp" -> 1))
+      .one[ProfilePersist](ReadPreference.primaryPreferred)
+  }
+
+  def findProfileByRoomId(roomId:String): Future[Option[ProfilePersist]] = {
+    val messageTypeQuery = Json.obj("roomId" -> roomId)
 
     collection.find(messageTypeQuery)
       .sort(Json.obj("timestamp" -> 1))
@@ -106,7 +114,9 @@ class ProfileMongoRepository @Inject()(mongo: DB)
 trait ProfileRepository extends Repository[ProfilePersist, BSONObjectID] {
   def insert(clientId:String, roomId:String, roomName:String, email:String): Future[DatabaseUpdate[ProfilePersist]]
 
-  def findProfiles() : Future[List[ProfilePersist]]
+  def findProfiles() : Future[Seq[ProfilePersist]]
+
+  def findProfileByRoomId(roomId:String) : Future[Option[ProfilePersist]]
 
   def findProfileByRoomName(roomName:String) : Future[Option[ProfilePersist]]
 

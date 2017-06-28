@@ -21,7 +21,8 @@ object MicroServiceBuild extends Build with MicroService {
     "uk.gov.hmrc" %% "play-config" % "4.3.0",
     "uk.gov.hmrc" %% "logback-json-logger" % "3.1.0",
     "uk.gov.hmrc" %% "domain" % "4.1.0",
-    "org.glassfish" % "javax.json" % "1.0.4"
+    "org.glassfish" % "javax.json" % "1.0.4",
+    "uk.gov.hmrc" %% "play-scheduling" % "4.1.0"
   )
 
   def test(scope: String = "test,it") = Seq(
@@ -30,7 +31,9 @@ object MicroServiceBuild extends Build with MicroService {
     "org.pegdown" % "pegdown" % "1.6.0" % scope,
     "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
     "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1",
-    "org.mockito" % "mockito-core" % "1.9.0" % scope
+    "org.mockito" % "mockito-core" % "2.7.14" % scope,
+    "com.typesafe.akka" %% "akka-testkit" % "2.3.14" % scope,
+    "org.mockito" % "mockito-core" % "2.7.14" % scope
   )
 
 }

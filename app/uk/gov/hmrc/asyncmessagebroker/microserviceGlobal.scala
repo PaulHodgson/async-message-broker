@@ -20,6 +20,7 @@ import com.typesafe.config.Config
 import net.ceedubs.ficus.Ficus._
 import play.api.mvc.EssentialFilter
 import play.api.{Application, Configuration, Play}
+import uk.gov.hmrc.asyncmessagebroker.scheduled.JobScheduler
 import uk.gov.hmrc.play.audit.filters.AuditFilter
 import uk.gov.hmrc.play.config.{AppName, ControllerConfig, RunMode}
 import uk.gov.hmrc.play.filters.MicroserviceFilterSupport
@@ -54,4 +55,19 @@ object MicroserviceGlobal extends DefaultMicroserviceGlobal
   override val microserviceAuditFilter = MicroserviceAuditFilter
 
   override def authFilter: Option[EssentialFilter] = None
+
+  override def onStart(app: Application): Unit = {
+    super.onStart(app)
+
+    val scheduler = app.injector.instanceOf(classOf[JobScheduler])
+    scheduler.onStart(app)
+  }
+
+  override def onStop(app: Application): Unit = {
+    super.onStop(app)
+
+    val scheduler = app.injector.instanceOf(classOf[JobScheduler])
+    scheduler.onStop(app)
+  }
+
 }

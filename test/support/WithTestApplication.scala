@@ -31,8 +31,8 @@ trait WithTestApplication extends BeforeAndAfterAll {
     .configure("auditing.enabled" -> "false")
     .configure(configureTestApp)
     .build()
-  
-  def configureTestApp: Map[String, Any] = Map()
+
+  def configureTestApp: Map[String,  Any] = Map()
 
   def bindModules: Seq[GuiceableModule] = Seq()
 

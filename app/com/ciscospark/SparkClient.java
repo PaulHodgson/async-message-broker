@@ -18,17 +18,36 @@ public class SparkClient {
         return(spark);
     }
 
+// TODO...PLUG INTO NEW SERVICE!!
+
+    public static Message getMessageFromId(String accessToken, String messageId, Spark spark) {
+        if (spark==null) {
+            spark=createClient(accessToken);
+        }
+        Message mess=null;
+        try {
+            mess = spark.messages().url(new URL(sparkURL+"/messages/"+messageId)).get();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return(mess);
+    }
+
+    // TODO...
     public static List<Message> getMessageRooms(String accessToken, String roomId) {
         List<Message> messages = new ArrayList<Message>();
 
         Spark spark=createClient(accessToken);
+
+        // For each item obtain the message from the message Id!
         spark.messages().queryParam("roomId", roomId).iterate().forEachRemaining(message -> {
-            try {
-                Message mess = spark.messages().url(new URL(sparkURL+"/messages/"+message.getId())).get();
-                messages.add(mess);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                Message mess = spark.messages().url(new URL(sparkURL+"/messages/"+message.getId())).get();
+//                messages.add(mess);
+//            } catch (MalformedURLException e) {
+//                e.printStackTrace();
+
+            messages.add(getMessageFromId(accessToken, message.getId().toString(), spark));
         });
         return(messages);
     }

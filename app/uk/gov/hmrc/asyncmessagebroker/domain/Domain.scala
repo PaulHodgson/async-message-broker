@@ -34,8 +34,20 @@ object RoomResponse {
   implicit val format = Json.format[RoomResponse]
 }
 
-case class Response(text:String, email:String)
+case class Response(text:String, email:String, timestamp:Long, id:String)
 object Response {
   implicit val format = Json.format[Response]
 }
 
+case class Data(id:String, roomId:String, personId:String, personEmail:String, created:String)
+object Data {
+  implicit val format = Json.format[Data]
+}
+
+case class Webhook(id:String, name:String, targetUrl:String, resource:String, event:String, orgId:String,
+                   createdBy:String, appId:String, ownedBy:String, status:String, created:String, actorId:String,
+                   data:Data)
+
+object Webhook {
+  implicit val format = Json.format[Webhook]
+}

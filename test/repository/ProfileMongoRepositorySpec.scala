@@ -58,5 +58,16 @@ class ProfileMongoRepositorySpec extends UnitSpec with ScalaFutures with WithTes
       record.roomName shouldBe "3"
       record.email shouldBe "4"
     }
+
+    "find a record by room Id" in {
+      await(profileRepository.insert("1", "2", "3", "4"))
+      await(profileRepository.insert("a", "b", "c", "d"))
+      val record = await(profileRepository.findProfileByRoomId("2")).get
+      record.clientId shouldBe "1"
+      record.roomId shouldBe "2"
+      record.roomName shouldBe "3"
+      record.email shouldBe "4"
+    }
+
   }
 }
