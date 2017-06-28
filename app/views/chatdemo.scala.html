@@ -106,8 +106,8 @@
                         });
 
                         if (items.length > 0) {
-                            lastId = items[length].id;
-                            timestamp = items[length].timestamp;
+                            lastId = items[items.length - 1].id;
+                            timestamp = items[items.length - 1].timestamp;
                             updateMessageCount(items.length);
                         }
                     });
