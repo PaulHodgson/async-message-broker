@@ -119,13 +119,15 @@
                 }
 
                 function updateMessageCount(numberOfMessages) {
-                    currentMessageCount += numberOfMessages;
                     if (messageScreenDisplayed) {
                         currentMessageCount = 0;
                     } else {
-                        if (currentMessageCount > 0) {
+                        if (numberOfMessages > 0 && currentMessageCount !== -1) {
+                            currentMessageCount += numberOfMessages;
                             $("#messages_badge").text(currentMessageCount);
                             show('messages_badge');
+                        } else {
+                            currentMessageCount = 0;
                         }
                     }
                 }
