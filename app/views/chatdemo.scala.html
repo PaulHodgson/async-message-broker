@@ -105,9 +105,11 @@
                             return item;
                         });
 
-                        lastId = items[length].id;
-                        timestamp = items[length].timestamp;
-                        updateMessageCount(items.length);
+                        if (items.length > 0) {
+                            lastId = items[length].id;
+                            timestamp = items[length].timestamp;
+                            updateMessageCount(items.length);
+                        }
                     });
                 }
 
