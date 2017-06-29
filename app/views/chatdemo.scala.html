@@ -70,7 +70,7 @@
         <script type="text/javascript">
 
                 var messageScreenDisplayed = false;
-                var currentMessageCount = -1;
+                var currentMessageCount = 0;
 
                 function hide(id) {
                     var e = document.getElementById(id);
@@ -122,12 +122,10 @@
                     if (messageScreenDisplayed) {
                         currentMessageCount = 0;
                     } else {
-                        if (numberOfMessages > 0 && currentMessageCount !== -1) {
+                        if (numberOfMessages > 0) {
                             currentMessageCount += numberOfMessages;
                             $("#messages_badge").text(currentMessageCount);
                             show('messages_badge');
-                        } else {
-                            currentMessageCount = 0;
                         }
                     }
                 }
