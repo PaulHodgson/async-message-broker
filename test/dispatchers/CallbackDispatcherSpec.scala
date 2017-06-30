@@ -63,7 +63,7 @@ class CallbackDispatcherSpec extends UnitSpec with ScalaFutures with MockitoSuga
   "scheduling the queue dispatcher" should {
     "process queued messages in hook mode" in new Setup {
 
-      when(mockMessageService.getQueuedHookMesssages()).thenAnswer(defineResult(Future.successful(someCallbacks)))
+      when(mockMessageService.getQueuedHookMesssages).thenAnswer(defineResult(Future.successful(someCallbacks)))
       when(mockMessageService.processMessage(ArgumentMatchers.any[AsyncMessage]())).thenAnswer(defineResult(Future.successful(Some(messagePersist))))
 
       await(dispatcherHook.processCallbacks())
@@ -80,7 +80,7 @@ class CallbackDispatcherSpec extends UnitSpec with ScalaFutures with MockitoSuga
     "do nothing when there are no messages in hook mode" in new Setup {
       reset(mockMessageService)
 
-      when(mockMessageService.getQueuedHookMesssages()).thenAnswer(defineResult(Future.successful(emptyCallbacks)))
+      when(mockMessageService.getQueuedHookMesssages).thenAnswer(defineResult(Future.successful(emptyCallbacks)))
 
       await(dispatcherHook.processCallbacks())
 
