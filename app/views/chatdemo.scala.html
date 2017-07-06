@@ -136,7 +136,13 @@
                     var clientmsg = $("#usermsg").val();
 
 
-                    $.get("/async-message-broker/message?clientId=@userId&roomId=@sparkRoomId&message=" + clientmsg, function (data, status) {
+                    $.getJSON("/async-message-broker/message?clientId=@userId&roomId=@sparkRoomId&message=" + clientmsg, function (data, status) {
+                        var content = '<div class="message user">' + clientmsg + '</div>';
+                        showData.append(content);
+                        scrollToBottomOfMessageList();
+
+                        timestamp = data.timestamp;
+                        lastId = data.id;
                     });
 
                     $("#usermsg").attr("value", "");

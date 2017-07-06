@@ -29,6 +29,11 @@ object ClientRequest {
   implicit val format = Json.format[ClientRequest]
 }
 
+case class MessageResponse(timestamp:Long, id:String)
+object MessageResponse {
+  implicit val format = Json.format[MessageResponse]
+}
+
 case class RoomResponse(clientId:String, roomId:String)
 object RoomResponse {
   implicit val format = Json.format[RoomResponse]

@@ -20,7 +20,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.libs.json._
 import play.api.mvc._
-import uk.gov.hmrc.asyncmessagebroker.domain.Webhook
+import uk.gov.hmrc.asyncmessagebroker.domain.{MessageResponse, Webhook}
 import uk.gov.hmrc.asyncmessagebroker.service.MessageService
 import uk.gov.hmrc.play.microservice.controller.BaseController
 import scala.concurrent.Future
@@ -43,7 +43,8 @@ class ASyncMessageBrokerController @Inject()(messageService:MessageService) exte
   }
 
   def sendMessage(clientId:String, roomId:String, message:String) = Action.async {
-    messageService.sendMessage(clientId, roomId, message).map(_ => Ok("{}"))
+    messageService.sendMessage(clientId, roomId, message).map( res =>
+      Ok(Json.toJson(MessageResponse(res.updateType.savedValue.timestamp, res.updateType.savedValue.action.messageId.getOrElse(throw new Exception("Failed to find Id!"))))))
   }
 
   def membership(roomId:String, email:String) = Action.async {

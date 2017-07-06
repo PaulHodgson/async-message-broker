@@ -34,6 +34,8 @@ class CallbackWorker(master: ActorRef, messageService: MessageServiceApi, metric
 
   case class UpdateStatus(status:ProcessingStatus, id:BSONObjectID)
 
+  private val statusGroup = Seq(ProcessingStatus.Complete, ProcessingStatus.Failed)
+
   override def doWork(work: Batch[AsyncMessage]): Future[Unit] = {
 
     val future: Seq[Future[UpdateStatus]] = work.map { item =>
@@ -48,15 +50,18 @@ class CallbackWorker(master: ActorRef, messageService: MessageServiceApi, metric
     Future.sequence(future).map {
       result =>
         if (!messageUpdateMode) {
-          val complete = result.collect(matchStatus(ProcessingStatus.Complete)).map(_.id)
-          val failed = result.collect(matchStatus(ProcessingStatus.Failed)).map(_.id)
-          val update: Seq[GroupStatusUpdate] = Seq(GroupStatusUpdate(ProcessingStatus.Complete, complete), GroupStatusUpdate(ProcessingStatus.Failed, failed))
+          val update: Seq[GroupStatusUpdate] = statusGroup.map { status =>
+            val search = result.collect(matchStatus(status)).map(_.id)
+            if (search.length > 0) {
+              Some(GroupStatusUpdate(status, search))
+            } else None
+          }.flatten
           // Do not wait for future.
           messageService.updateHookMessages(update).recover {
             case ex:Exception => error(s"Failed to update hooks $update!")
           }
-          Unit
-        } else Unit
+        }
+        Unit
 // TODO: Add sweeper to cleanup records!
     }
   }
